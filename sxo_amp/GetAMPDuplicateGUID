@@ -1,0 +1,455 @@
+{
+  "workflow": {
+    "unique_name": "definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI",
+    "name": "Get AMP Duplicate GUID's",
+    "title": "Get AMP Duplicate GUID's",
+    "type": "generic.workflow",
+    "base_type": "workflow",
+    "variables": [
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "",
+          "scope": "output",
+          "name": "Duplicates",
+          "type": "datatype.string",
+          "description": "Duplicate AMP GUIDs",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01IEJU06NWIJ90C4db9ROjSL0C11JVLWFiE",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.integer",
+        "properties": {
+          "value": 0,
+          "scope": "local",
+          "name": "current_computer_count",
+          "type": "datatype.integer",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01IEEE0PK9HGG009wDnJ0cN5RRlLAMrPFz6",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "",
+          "scope": "local",
+          "name": "computers",
+          "type": "datatype.string",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01IEIJOJP8QUT5mEpOsSAcY9yYfcb53Hgf9",
+        "object_type": "variable_workflow"
+      }
+    ],
+    "properties": {
+      "atomic": {
+        "is_atomic": false
+      },
+      "delete_workflow_instance": false,
+      "display_name": "Get AMP Duplicate GUID's",
+      "runtime_user": {
+        "override_target_runtime_user": false,
+        "specify_on_workflow_start": false,
+        "target_default": true
+      },
+      "target": {
+        "target_type": "web-service.endpoint",
+        "target_id": "definition_target_01FA3JJT0U1NE3fylkooR7B7AGvmxGikfrV",
+        "execute_on_workflow_target": true
+      }
+    },
+    "object_type": "definition_workflow",
+    "actions": [
+      {
+        "unique_name": "definition_activity_01IEE67B4ENST7BmKLrKMC8dL69egdE44VJ",
+        "name": "HTTP Request",
+        "title": "Get AMP Computers",
+        "type": "web-service.http_request",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "allow_auto_redirect": true,
+          "continue_on_error_status_code": false,
+          "continue_on_failure": false,
+          "display_name": "Get AMP Computers",
+          "method": "GET",
+          "relative_url": "/computers",
+          "runtime_user": {
+            "override_target_runtime_user": false,
+            "target_default": true
+          },
+          "skip_execution": false,
+          "target": {
+            "override_workflow_target": false,
+            "override_workflow_target_group_criteria": false,
+            "use_workflow_target": true,
+            "use_workflow_target_group": false
+          }
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01IEE8PGBXEBV7klMQcKnb96TagnL7xjsd5",
+        "name": "JSONPath Query",
+        "title": "Parse Initial Response",
+        "type": "corejava.jsonpathquery",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "continue_on_failure": false,
+          "display_name": "Parse Initial Response",
+          "input_json": "$activity.definition_activity_01IEE67B4ENST7BmKLrKMC8dL69egdE44VJ.output.response_body$",
+          "jsonpath_queries": [
+            {
+              "jsonpath_query": "$.data[*]",
+              "jsonpath_query_name": "computers",
+              "jsonpath_query_type": "string"
+            },
+            {
+              "jsonpath_query": "$.metadata.results.total",
+              "jsonpath_query_name": "total_computers",
+              "jsonpath_query_type": "integer"
+            },
+            {
+              "jsonpath_query": "$.metadata.results.current_item_count",
+              "jsonpath_query_name": "current_computer_count",
+              "jsonpath_query_type": "integer"
+            },
+            {
+              "jsonpath_query": "$.metadata.results.index",
+              "jsonpath_query_name": "index",
+              "jsonpath_query_type": "integer"
+            },
+            {
+              "jsonpath_query": "$.metadata.results.items_per_page",
+              "jsonpath_query_name": "computers_per_page",
+              "jsonpath_query_type": "integer"
+            }
+          ],
+          "skip_execution": false
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01IEHI953D1GN3jEXAywOWZfDGlUvh8WoSJ",
+        "name": "Condition Block",
+        "title": "Condition Block",
+        "type": "logic.if_else",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "Condition Block",
+          "skip_execution": false
+        },
+        "object_type": "definition_activity",
+        "blocks": [
+          {
+            "unique_name": "definition_activity_01IEHI9L3NZHO5zCxgBcnm4JcumhOO04QOt",
+            "name": "Condition Branch",
+            "title": "All computers accounted for",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$activity.definition_activity_01IEE8PGBXEBV7klMQcKnb96TagnL7xjsd5.output.jsonpath_queries.total_computers$",
+                "operator": "lte",
+                "right_operand": "$activity.definition_activity_01IEE8PGBXEBV7klMQcKnb96TagnL7xjsd5.output.jsonpath_queries.computers_per_page$"
+              },
+              "continue_on_failure": false,
+              "display_name": "All computers accounted for",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01IEJMYIAE1U75zqd5UaGNzXATJPm9NNN0w",
+                "name": "Set Variables",
+                "title": "Set Local Computer Variable ",
+                "type": "core.set_multiple_variables",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "Set Local Computer Variable ",
+                  "skip_execution": false,
+                  "variables_to_update": [
+                    {
+                      "variable_to_update": "$workflow.definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI.local.variable_workflow_01IEIJOJP8QUT5mEpOsSAcY9yYfcb53Hgf9$",
+                      "variable_value_new": "$activity.definition_activity_01IEE8PGBXEBV7klMQcKnb96TagnL7xjsd5.output.jsonpath_queries.computers$"
+                    }
+                  ]
+                },
+                "object_type": "definition_activity"
+              }
+            ]
+          },
+          {
+            "unique_name": "definition_activity_01IEHI9RAB39P0z2xSzwhOgSdRAbsYjofLJ",
+            "name": "Condition Branch",
+            "title": "More computers to add to table",
+            "type": "logic.condition_block",
+            "base_type": "activity",
+            "properties": {
+              "condition": {
+                "left_operand": "$activity.definition_activity_01IEE8PGBXEBV7klMQcKnb96TagnL7xjsd5.output.jsonpath_queries.total_computers$",
+                "operator": "gt",
+                "right_operand": "$activity.definition_activity_01IEE8PGBXEBV7klMQcKnb96TagnL7xjsd5.output.jsonpath_queries.computers_per_page$"
+              },
+              "continue_on_failure": false,
+              "display_name": "More computers to add to table",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01IEI6Y37F0T02GyLUSkFz9b9kzK97WQwRi",
+                "name": "While Loop",
+                "title": "Keep getting computers",
+                "type": "logic.while",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "Keep getting computers",
+                  "skip_execution": false
+                },
+                "object_type": "definition_activity",
+                "blocks": [
+                  {
+                    "unique_name": "definition_activity_01IEI6YHE8I3N1y6LU0JbQfuab7Zsf8wWRb",
+                    "name": "Condition Branch",
+                    "title": "If total added is less than total",
+                    "type": "logic.condition_block",
+                    "base_type": "activity",
+                    "properties": {
+                      "condition": {
+                        "left_operand": "$workflow.definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI.local.variable_workflow_01IEEE0PK9HGG009wDnJ0cN5RRlLAMrPFz6$",
+                        "operator": "gte",
+                        "right_operand": "$activity.definition_activity_01IEE8PGBXEBV7klMQcKnb96TagnL7xjsd5.output.jsonpath_queries.total_computers$"
+                      },
+                      "continue_on_failure": false,
+                      "display_name": "If total added is less than total",
+                      "skip_execution": false
+                    },
+                    "object_type": "definition_activity",
+                    "actions": [
+                      {
+                        "unique_name": "definition_activity_01IEHQWHGGTTL4GsIe8vjvno6j3JLJuJPR5",
+                        "name": "HTTP Request",
+                        "title": "Get More AMP Computers",
+                        "type": "web-service.http_request",
+                        "base_type": "activity",
+                        "properties": {
+                          "action_timeout": 180,
+                          "allow_auto_redirect": true,
+                          "continue_on_error_status_code": false,
+                          "continue_on_failure": false,
+                          "display_name": "Get More AMP Computers",
+                          "method": "GET",
+                          "relative_url": "/computers&offset=$workflow.definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI.local.variable_workflow_01IEEE0PK9HGG009wDnJ0cN5RRlLAMrPFz6$",
+                          "runtime_user": {
+                            "override_target_runtime_user": false,
+                            "target_default": true
+                          },
+                          "skip_execution": false,
+                          "target": {
+                            "override_workflow_target": false,
+                            "override_workflow_target_group_criteria": false,
+                            "use_workflow_target": true,
+                            "use_workflow_target_group": false
+                          }
+                        },
+                        "object_type": "definition_activity"
+                      },
+                      {
+                        "unique_name": "definition_activity_01IEIDXNBO8XO3A6ObPfm9kx1qiXUtFBzkV",
+                        "name": "Execute Python Script",
+                        "title": "Parse additional AMP Response",
+                        "type": "python3.script",
+                        "base_type": "activity",
+                        "properties": {
+                          "action_timeout": 180,
+                          "continue_on_failure": false,
+                          "display_name": "Parse additional AMP Response",
+                          "script": "import sys\nimport json\n\ndata = json.loads(sys.argv[1])\ncomp = data['computers']\n\noffset = sys.argv[2] + data['metadata']['results']['current_item_count']\ncomputers = comp + sys.argv[3]",
+                          "script_arguments": [
+                            "$activity.definition_activity_01IEHQWHGGTTL4GsIe8vjvno6j3JLJuJPR5.output.response_body$",
+                            "",
+                            "$workflow.definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI.local.variable_workflow_01IEEE0PK9HGG009wDnJ0cN5RRlLAMrPFz6$",
+                            "$workflow.definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI.local.variable_workflow_01IEIJOJP8QUT5mEpOsSAcY9yYfcb53Hgf9$"
+                          ],
+                          "script_queries": [
+                            {
+                              "script_query": "$workflow.definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI.local.variable_workflow_01IEIJOJP8QUT5mEpOsSAcY9yYfcb53Hgf9$",
+                              "script_query_name": "computers",
+                              "script_query_type": "string"
+                            },
+                            {
+                              "script_query": "$workflow.definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI.local.variable_workflow_01IEEE0PK9HGG009wDnJ0cN5RRlLAMrPFz6$",
+                              "script_query_name": "offset",
+                              "script_query_type": "integer"
+                            }
+                          ],
+                          "skip_execution": false
+                        },
+                        "object_type": "definition_activity"
+                      },
+                      {
+                        "unique_name": "definition_activity_01IEJP339LMN75sQBKGdfZKbxIn9ZhVrx2o",
+                        "name": "JSONPath Query",
+                        "title": "Parse Response",
+                        "type": "corejava.jsonpathquery",
+                        "base_type": "activity",
+                        "properties": {
+                          "action_timeout": 180,
+                          "continue_on_failure": false,
+                          "display_name": "Parse Response",
+                          "input_json": "$activity.definition_activity_01IEIDXNBO8XO3A6ObPfm9kx1qiXUtFBzkV.output.response_body$",
+                          "jsonpath_queries": [
+                            {
+                              "jsonpath_query": "$.computers[*]",
+                              "jsonpath_query_name": "computers",
+                              "jsonpath_query_type": "string"
+                            },
+                            {
+                              "jsonpath_query": "$.offset",
+                              "jsonpath_query_name": "offset",
+                              "jsonpath_query_type": "integer"
+                            }
+                          ],
+                          "skip_execution": false
+                        },
+                        "object_type": "definition_activity"
+                      },
+                      {
+                        "unique_name": "definition_activity_01IEJND6QQ5L163jL2oNKr0xxlURUKnAXAX",
+                        "name": "Set Variables",
+                        "title": "Set Local Computer Variable ",
+                        "type": "core.set_multiple_variables",
+                        "base_type": "activity",
+                        "properties": {
+                          "continue_on_failure": false,
+                          "display_name": "Set Local Computer Variable ",
+                          "skip_execution": false,
+                          "variables_to_update": [
+                            {
+                              "variable_to_update": "$workflow.definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI.local.variable_workflow_01IEIJOJP8QUT5mEpOsSAcY9yYfcb53Hgf9$",
+                              "variable_value_new": "$activity.definition_activity_01IEJP339LMN75sQBKGdfZKbxIn9ZhVrx2o.output.jsonpath_queries.computers$"
+                            },
+                            {
+                              "variable_to_update": "$workflow.definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI.local.variable_workflow_01IEEE0PK9HGG009wDnJ0cN5RRlLAMrPFz6$",
+                              "variable_value_new": "$activity.definition_activity_01IEJP339LMN75sQBKGdfZKbxIn9ZhVrx2o.output.jsonpath_queries.offset$"
+                            }
+                          ]
+                        },
+                        "object_type": "definition_activity"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "unique_name": "definition_activity_01IEIETDXOIGX35o71uY3nd9Uv0pO8rVx1x",
+        "name": "Execute Python Script",
+        "title": "Get Duplicates",
+        "type": "python3.script",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "continue_on_failure": false,
+          "display_name": "Get Duplicates",
+          "script": "import sys\n\ndata = sys.argv[1]\nchecked = []\nduplicate = []\nfor d in data:\n    if d not in checked:\n        checked.append(d)\n        duplicate.append(d)\n\n    ",
+          "script_arguments": [
+            "",
+            "$activity.definition_activity_01IEE8PGBXEBV7klMQcKnb96TagnL7xjsd5.output.jsonpath_queries.computers$"
+          ],
+          "script_queries": [
+            {
+              "script_query": "duplicate",
+              "script_query_name": "duplicate",
+              "script_query_type": "string"
+            }
+          ],
+          "skip_execution": false
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01IEJSZHFUZRK0lL6gCSYvCrkj8fIYdcovJ",
+        "name": "Set Variables",
+        "title": "Set Duplicate Output",
+        "type": "core.set_multiple_variables",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "Set Duplicate Output",
+          "skip_execution": false,
+          "variables_to_update": [
+            {
+              "variable_to_update": "$workflow.definition_workflow_01IEE62HNP0KC4sWV36QmgpqVpjaArmYhiI.output.variable_workflow_01IEJU06NWIJ90C4db9ROjSL0C11JVLWFiE$",
+              "variable_value_new": "$activity.definition_activity_01IEIETDXOIGX35o71uY3nd9Uv0pO8rVx1x.output.script_queries.duplicate$"
+            }
+          ]
+        },
+        "object_type": "definition_activity"
+      }
+    ],
+    "categories": [
+      "category_01K5IXRJCXF9G00fuPQHZXUzs6NxVplqUgB"
+    ]
+  },
+  "categories": {
+    "category_01K5IXRJCXF9G00fuPQHZXUzs6NxVplqUgB": {
+      "unique_name": "category_01K5IXRJCXF9G00fuPQHZXUzs6NxVplqUgB",
+      "name": "AMP-Comp",
+      "title": "AMP-Comp",
+      "type": "basic.category",
+      "base_type": "category",
+      "category_type": "custom",
+      "object_type": "category"
+    }
+  },
+  "targets": {
+    "definition_target_01FA3JJT0U1NE3fylkooR7B7AGvmxGikfrV": {
+      "unique_name": "definition_target_01FA3JJT0U1NE3fylkooR7B7AGvmxGikfrV",
+      "name": "AMP-Cloud",
+      "title": "AMP-Cloud",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "default_runtime_user_id": "definition_runtime_user_01FA3IJYBDOPV21PXs8Az6iOfEvXk3lK3ZU",
+        "disable_certificate_validation": false,
+        "display_name": "AMP-Cloud",
+        "host": "api.amp.cisco.com",
+        "no_runtime_user": false,
+        "path": "/v1",
+        "protocol": "https"
+      }
+    }
+  },
+  "runtime_users": {
+    "definition_runtime_user_01FA3IJYBDOPV21PXs8Az6iOfEvXk3lK3ZU": {
+      "unique_name": "definition_runtime_user_01FA3IJYBDOPV21PXs8Az6iOfEvXk3lK3ZU",
+      "name": "AMP-API-Key",
+      "title": "AMP-API-Key",
+      "type": "runtime_user.web-service_basic_credentials",
+      "base_type": "runtime_user",
+      "object_type": "definition_runtime_user",
+      "properties": {
+        "auth_option": "*****",
+        "basic_password": "*****",
+        "basic_username": "*****",
+        "display_name": "AMP-API-Key"
+      }
+    }
+  }
+}

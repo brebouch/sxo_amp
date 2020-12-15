@@ -1,0 +1,568 @@
+{
+  "workflow": {
+    "unique_name": "definition_workflow_01IEJWNI0UKYY61Uxp691ObT3yLfRw8QBK4",
+    "name": "Delete AMP Computers",
+    "title": "Delete AMP Computers",
+    "type": "generic.workflow",
+    "base_type": "workflow",
+    "variables": [
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "",
+          "scope": "local",
+          "name": "delete_computers",
+          "type": "datatype.string",
+          "is_required": false,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01IEK1TQBQLN51StEYJsHjAlSlXtzivr5bP",
+        "object_type": "variable_workflow"
+      }
+    ],
+    "properties": {
+      "atomic": {
+        "is_atomic": false
+      },
+      "delete_workflow_instance": false,
+      "display_name": "Delete AMP Computers",
+      "runtime_user": {
+        "override_target_runtime_user": false,
+        "specify_on_workflow_start": false,
+        "target_default": true
+      },
+      "target": {
+        "target_type": "web-service.endpoint",
+        "target_id": "definition_target_01FA3JJT0U1NE3fylkooR7B7AGvmxGikfrV",
+        "execute_on_workflow_target": true
+      }
+    },
+    "object_type": "definition_workflow",
+    "actions": [
+      {
+        "unique_name": "definition_activity_01IEKBI7KD9KT258JcDb7zRpQfNzeqvrVJK",
+        "name": "Execute Python Script",
+        "title": "Split Delete Objects ",
+        "type": "python3.script",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "continue_on_failure": false,
+          "display_name": "Split Delete Objects ",
+          "script": "import sys\n\nworker_one = []\nworker_two = []\nworker_three = []\nworker_four = []\nworker_five = []\n\ndata = sys.argv[1]\n\nif len(data) >= 5:\nsplit = int(len(data) / 5)\n        worker_one = data[0:split]\n        worker_two = data[split:(split * 2)]\n        worker_three = data[(split * 2):(split * 3)]\n        worker_four = data[(split * 3):(split * 4)]\n        worker_five = data[(split * 4):]\n\n\n",
+          "script_arguments": [
+            "$workflow.definition_workflow_01IEJWNI0UKYY61Uxp691ObT3yLfRw8QBK4.local.variable_workflow_01IEK1TQBQLN51StEYJsHjAlSlXtzivr5bP$"
+          ],
+          "script_queries": [
+            {
+              "script_query": "one",
+              "script_query_name": "worker_one",
+              "script_query_type": "string"
+            },
+            {
+              "script_query": "two",
+              "script_query_name": "worker_two",
+              "script_query_type": "string"
+            },
+            {
+              "script_query": "three",
+              "script_query_name": "worker_three",
+              "script_query_type": "string"
+            },
+            {
+              "script_query": "four",
+              "script_query_name": "worker_four",
+              "script_query_type": "string"
+            },
+            {
+              "script_query": "five",
+              "script_query_name": "worker_five",
+              "script_query_type": "string"
+            }
+          ],
+          "skip_execution": false
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01IEKJPZ7V5D74LjTgmNXy9tIl5e1NCsrkw",
+        "name": "Parallel Block",
+        "title": "Run Deletes in Parallel",
+        "type": "logic.parallel",
+        "base_type": "activity",
+        "properties": {
+          "continue_on_failure": false,
+          "display_name": "Run Deletes in Parallel",
+          "skip_execution": false
+        },
+        "object_type": "definition_activity",
+        "blocks": [
+          {
+            "unique_name": "definition_activity_01IEKPBX3GUET6E0PcvBfwWITG3rneLdPbA",
+            "name": "Parallel Branch",
+            "title": "Parallel Branch",
+            "type": "logic.parallel_block",
+            "base_type": "activity",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "Parallel Branch",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01IEKPCA8WY6O3A5uoV1v3riBRIshBTlQ3w",
+                "name": "Read Table from JSON",
+                "title": "Read Table from JSON",
+                "type": "corejava.read_table_from_json",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "continue_on_failure": false,
+                  "display_name": "Read Table from JSON",
+                  "input_json": "$activity.definition_activity_01IEKBI7KD9KT258JcDb7zRpQfNzeqvrVJK.output.script_queries.worker_one$",
+                  "jsonpath_query": "$",
+                  "persist_output": false,
+                  "populate_columns": false,
+                  "skip_execution": false,
+                  "table_columns": [
+                    {
+                      "column_name": "connector_guid",
+                      "column_type": "string"
+                    }
+                  ]
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01IEKPCN2XWMM056WC7Iyg15VRKA35m2cB6",
+                "name": "For Each",
+                "title": "For Each",
+                "type": "logic.for_each",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "For Each",
+                  "skip_execution": false,
+                  "source_array": "$activity.definition_activity_01IEKPCA8WY6O3A5uoV1v3riBRIshBTlQ3w.output.read_table_from_json$"
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_01IEKPD5K0BEL67TLNN9cYXMhNG8hY2F1Db",
+                    "name": "HTTP Request",
+                    "title": "Delete AMP Computer",
+                    "type": "web-service.http_request",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "allow_auto_redirect": true,
+                      "continue_on_error_status_code": false,
+                      "continue_on_failure": false,
+                      "display_name": "Delete AMP Computer",
+                      "method": "DELETE",
+                      "relative_url": "/computers/$activity.definition_activity_01IEKPCN2XWMM056WC7Iyg15VRKA35m2cB6.input.source_array[@].connector_guid$",
+                      "runtime_user": {
+                        "override_target_runtime_user": false,
+                        "target_default": true
+                      },
+                      "skip_execution": false,
+                      "target": {
+                        "override_workflow_target": false,
+                        "override_workflow_target_group_criteria": false,
+                        "use_workflow_target": true,
+                        "use_workflow_target_group": false
+                      }
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "unique_name": "definition_activity_01IEKPRPXF8KU2btJf0RJwjofMSjTxEywKS",
+            "name": "Parallel Branch",
+            "title": "Parallel Branch",
+            "type": "logic.parallel_block",
+            "base_type": "activity",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "Parallel Branch",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01IEKPRZO0DE04PQEzkx9p8vqB8BIHRfnKl",
+                "name": "Read Table from JSON",
+                "title": "Read Table from JSON",
+                "type": "corejava.read_table_from_json",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "continue_on_failure": false,
+                  "display_name": "Read Table from JSON",
+                  "input_json": "$activity.definition_activity_01IEKBI7KD9KT258JcDb7zRpQfNzeqvrVJK.output.script_queries.worker_one$",
+                  "jsonpath_query": "$",
+                  "persist_output": false,
+                  "populate_columns": false,
+                  "skip_execution": false,
+                  "table_columns": [
+                    {
+                      "column_name": "connector_guid",
+                      "column_type": "string"
+                    }
+                  ]
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01IEKPSC11CHN4gcogMfy5yAQPD6NnJ773F",
+                "name": "For Each",
+                "title": "For Each",
+                "type": "logic.for_each",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "For Each",
+                  "skip_execution": false,
+                  "source_array": "$activity.definition_activity_01IEKPRZO0DE04PQEzkx9p8vqB8BIHRfnKl.output.read_table_from_json$"
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_01IEKPT43A0K06nfF1xmvC6YdTPMNapk1Oy",
+                    "name": "HTTP Request",
+                    "title": "Delete AMP Computer",
+                    "type": "web-service.http_request",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "allow_auto_redirect": true,
+                      "continue_on_error_status_code": false,
+                      "continue_on_failure": false,
+                      "display_name": "Delete AMP Computer",
+                      "method": "DELETE",
+                      "relative_url": "/computers/$activity.definition_activity_01IEKPSC11CHN4gcogMfy5yAQPD6NnJ773F.input.source_array[@].connector_guid$",
+                      "runtime_user": {
+                        "override_target_runtime_user": false,
+                        "target_default": true
+                      },
+                      "skip_execution": false,
+                      "target": {
+                        "override_workflow_target": false,
+                        "override_workflow_target_group_criteria": false,
+                        "use_workflow_target": true,
+                        "use_workflow_target_group": false
+                      }
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "unique_name": "definition_activity_01IEKPN1WQPLN2btGBE85F8FVrmvKk72ilU",
+            "name": "Parallel Branch",
+            "title": "Parallel Branch",
+            "type": "logic.parallel_block",
+            "base_type": "activity",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "Parallel Branch",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01IEKPNI062AV2PGCRfdEidfoX08EMUqns8",
+                "name": "Read Table from JSON",
+                "title": "Read Table from JSON",
+                "type": "corejava.read_table_from_json",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "continue_on_failure": false,
+                  "display_name": "Read Table from JSON",
+                  "input_json": "$activity.definition_activity_01IEKBI7KD9KT258JcDb7zRpQfNzeqvrVJK.output.script_queries.worker_one$",
+                  "jsonpath_query": "$",
+                  "persist_output": false,
+                  "populate_columns": false,
+                  "skip_execution": false,
+                  "table_columns": [
+                    {
+                      "column_name": "connector_guid",
+                      "column_type": "string"
+                    }
+                  ]
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01IEKPNQC3SC35y2Tvd8RhLMC0oMSStum20",
+                "name": "For Each",
+                "title": "For Each",
+                "type": "logic.for_each",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "For Each",
+                  "skip_execution": false,
+                  "source_array": "$activity.definition_activity_01IEKPNI062AV2PGCRfdEidfoX08EMUqns8.output.read_table_from_json$"
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_01IEKPO7JFM3Z0XtPu2p4KAhNfUomArlv1P",
+                    "name": "HTTP Request",
+                    "title": "Delete AMP Computer",
+                    "type": "web-service.http_request",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "allow_auto_redirect": true,
+                      "continue_on_error_status_code": false,
+                      "continue_on_failure": false,
+                      "display_name": "Delete AMP Computer",
+                      "method": "DELETE",
+                      "relative_url": "/computers/$activity.definition_activity_01IEKPNQC3SC35y2Tvd8RhLMC0oMSStum20.input.source_array[@].connector_guid$",
+                      "runtime_user": {
+                        "override_target_runtime_user": false,
+                        "target_default": true
+                      },
+                      "skip_execution": false,
+                      "target": {
+                        "override_workflow_target": false,
+                        "override_workflow_target_group_criteria": false,
+                        "use_workflow_target": true,
+                        "use_workflow_target_group": false
+                      }
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "unique_name": "definition_activity_01IEKP33GVKNY7SKYfoehrF5FVRabdAy2cq",
+            "name": "Parallel Branch",
+            "title": "Parallel Branch",
+            "type": "logic.parallel_block",
+            "base_type": "activity",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "Parallel Branch",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01IEKP3HRQE652uxfkalEIR31XID9d1k8EZ",
+                "name": "Read Table from JSON",
+                "title": "Read Table from JSON",
+                "type": "corejava.read_table_from_json",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "continue_on_failure": false,
+                  "display_name": "Read Table from JSON",
+                  "input_json": "$activity.definition_activity_01IEKBI7KD9KT258JcDb7zRpQfNzeqvrVJK.output.script_queries.worker_one$",
+                  "jsonpath_query": "$",
+                  "persist_output": false,
+                  "populate_columns": false,
+                  "skip_execution": false,
+                  "table_columns": [
+                    {
+                      "column_name": "connector_guid",
+                      "column_type": "string"
+                    }
+                  ]
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01IEKP3OSBL632ELShiOhj8hpuSx4dWxA3l",
+                "name": "For Each",
+                "title": "For Each",
+                "type": "logic.for_each",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "For Each",
+                  "skip_execution": false,
+                  "source_array": "$activity.definition_activity_01IEKP3HRQE652uxfkalEIR31XID9d1k8EZ.output.read_table_from_json$"
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_01IEKP42DAJXO7dCwetUxQXEQ1AeZpF3JrU",
+                    "name": "HTTP Request",
+                    "title": "Delete AMP Computer",
+                    "type": "web-service.http_request",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "allow_auto_redirect": true,
+                      "continue_on_error_status_code": false,
+                      "continue_on_failure": false,
+                      "display_name": "Delete AMP Computer",
+                      "method": "DELETE",
+                      "relative_url": "/computers/$activity.definition_activity_01IEKP3OSBL632ELShiOhj8hpuSx4dWxA3l.input.source_array[@].connector_guid$",
+                      "runtime_user": {
+                        "override_target_runtime_user": false,
+                        "target_default": true
+                      },
+                      "skip_execution": false,
+                      "target": {
+                        "override_workflow_target": false,
+                        "override_workflow_target_group_criteria": false,
+                        "use_workflow_target": true,
+                        "use_workflow_target_group": false
+                      }
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "unique_name": "definition_activity_01IEKP7IVLY2X5dAS63Rt5B8BFZWUuy58XT",
+            "name": "Parallel Branch",
+            "title": "Parallel Branch",
+            "type": "logic.parallel_block",
+            "base_type": "activity",
+            "properties": {
+              "continue_on_failure": false,
+              "display_name": "Parallel Branch",
+              "skip_execution": false
+            },
+            "object_type": "definition_activity",
+            "actions": [
+              {
+                "unique_name": "definition_activity_01IEKP7SKX1RO3DSkNB9gNwQj08dGveZyu8",
+                "name": "Read Table from JSON",
+                "title": "Read Table from JSON",
+                "type": "corejava.read_table_from_json",
+                "base_type": "activity",
+                "properties": {
+                  "action_timeout": 180,
+                  "continue_on_failure": false,
+                  "display_name": "Read Table from JSON",
+                  "input_json": "$activity.definition_activity_01IEKBI7KD9KT258JcDb7zRpQfNzeqvrVJK.output.script_queries.worker_one$",
+                  "jsonpath_query": "$",
+                  "persist_output": false,
+                  "populate_columns": false,
+                  "skip_execution": false,
+                  "table_columns": [
+                    {
+                      "column_name": "connector_guid",
+                      "column_type": "string"
+                    }
+                  ]
+                },
+                "object_type": "definition_activity"
+              },
+              {
+                "unique_name": "definition_activity_01IEKP807UP0N44tNrnd4n9TXDO8KYJ0qik",
+                "name": "For Each",
+                "title": "For Each",
+                "type": "logic.for_each",
+                "base_type": "activity",
+                "properties": {
+                  "continue_on_failure": false,
+                  "display_name": "For Each",
+                  "skip_execution": false,
+                  "source_array": "$activity.definition_activity_01IEKP7SKX1RO3DSkNB9gNwQj08dGveZyu8.output.read_table_from_json$"
+                },
+                "object_type": "definition_activity",
+                "actions": [
+                  {
+                    "unique_name": "definition_activity_01IEKP8CITM761HeFu25MrpnlCXr8R9WABM",
+                    "name": "HTTP Request",
+                    "title": "Delete AMP Computer",
+                    "type": "web-service.http_request",
+                    "base_type": "activity",
+                    "properties": {
+                      "action_timeout": 180,
+                      "allow_auto_redirect": true,
+                      "continue_on_error_status_code": false,
+                      "continue_on_failure": false,
+                      "display_name": "Delete AMP Computer",
+                      "method": "DELETE",
+                      "relative_url": "/computers/$activity.definition_activity_01IEKP807UP0N44tNrnd4n9TXDO8KYJ0qik.input.source_array[@].connector_guid$",
+                      "runtime_user": {
+                        "override_target_runtime_user": false,
+                        "target_default": true
+                      },
+                      "skip_execution": false,
+                      "target": {
+                        "override_workflow_target": false,
+                        "override_workflow_target_group_criteria": false,
+                        "use_workflow_target": true,
+                        "use_workflow_target_group": false
+                      }
+                    },
+                    "object_type": "definition_activity"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "categories": [
+      "category_01K5IXRJCXF9G00fuPQHZXUzs6NxVplqUgB"
+    ]
+  },
+  "categories": {
+    "category_01K5IXRJCXF9G00fuPQHZXUzs6NxVplqUgB": {
+      "unique_name": "category_01K5IXRJCXF9G00fuPQHZXUzs6NxVplqUgB",
+      "name": "AMP-Comp",
+      "title": "AMP-Comp",
+      "type": "basic.category",
+      "base_type": "category",
+      "category_type": "custom",
+      "object_type": "category"
+    }
+  },
+  "targets": {
+    "definition_target_01FA3JJT0U1NE3fylkooR7B7AGvmxGikfrV": {
+      "unique_name": "definition_target_01FA3JJT0U1NE3fylkooR7B7AGvmxGikfrV",
+      "name": "AMP-Cloud",
+      "title": "AMP-Cloud",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "default_runtime_user_id": "definition_runtime_user_01FA3IJYBDOPV21PXs8Az6iOfEvXk3lK3ZU",
+        "disable_certificate_validation": false,
+        "display_name": "AMP-Cloud",
+        "host": "api.amp.cisco.com",
+        "no_runtime_user": false,
+        "path": "/v1",
+        "protocol": "https"
+      }
+    }
+  },
+  "runtime_users": {
+    "definition_runtime_user_01FA3IJYBDOPV21PXs8Az6iOfEvXk3lK3ZU": {
+      "unique_name": "definition_runtime_user_01FA3IJYBDOPV21PXs8Az6iOfEvXk3lK3ZU",
+      "name": "AMP-API-Key",
+      "title": "AMP-API-Key",
+      "type": "runtime_user.web-service_basic_credentials",
+      "base_type": "runtime_user",
+      "object_type": "definition_runtime_user",
+      "properties": {
+        "auth_option": "*****",
+        "basic_password": "*****",
+        "basic_username": "*****",
+        "display_name": "AMP-API-Key"
+      }
+    }
+  }
+}
