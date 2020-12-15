@@ -1,3 +1,3 @@
 # SecureX Workflows
 
-Various workflows for SecureX Orechestrator
+Various workflows for SecureX Orchestrator
