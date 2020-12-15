@@ -1,1 +1,3 @@
-# sxo_amp
+# SecureX Workflows
+
+Various workflows for SecureX Orechestrator
