@@ -1,0 +1,198 @@
+{
+  "workflow": {
+    "unique_name": "definition_workflow_01KWRY4A9RYYV23FSzpqEungNkawpkU34Or",
+    "name": "Delete SecureX Incidents",
+    "title": "Delete SecureX Incidents",
+    "type": "generic.workflow",
+    "base_type": "workflow",
+    "variables": [
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "",
+          "scope": "input",
+          "name": "Incident Search Value",
+          "type": "datatype.string",
+          "is_required": true,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01KWS84T537CD6d6Xgmylcb6dFDKzUIE9RK",
+        "object_type": "variable_workflow"
+      },
+      {
+        "schema_id": "datatype.string",
+        "properties": {
+          "value": "",
+          "scope": "input",
+          "name": "Incident Search Field",
+          "type": "datatype.string",
+          "is_required": true,
+          "is_invisible": false
+        },
+        "unique_name": "variable_workflow_01KWS7VB26YHG1ccWhxlj4NKqKQ6Ql10kS3",
+        "object_type": "variable_workflow"
+      }
+    ],
+    "properties": {
+      "atomic": {
+        "is_atomic": false
+      },
+      "delete_workflow_instance": false,
+      "display_name": "Delete SecureX Incidents",
+      "runtime_user": {
+        "target_default": true
+      },
+      "target": {
+        "no_target": true
+      }
+    },
+    "object_type": "definition_workflow",
+    "actions": [
+      {
+        "unique_name": "definition_activity_01KWRYH1P030M3cFT3F2nxRm6wXjEHTvd1V",
+        "name": "HTTP Request",
+        "title": "Get SecureX Token",
+        "type": "web-service.http_request",
+        "base_type": "activity",
+        "properties": {
+          "accept": "application/json",
+          "action_timeout": 180,
+          "allow_auto_redirect": true,
+          "body": "grant_type=client_credentials",
+          "continue_on_error_status_code": false,
+          "continue_on_failure": false,
+          "custom_headers": [
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ],
+          "display_name": "Get SecureX Token",
+          "method": "POST",
+          "runtime_user": {
+            "override_target_runtime_user": false,
+            "target_default": true
+          },
+          "skip_execution": false,
+          "target": {
+            "override_workflow_target": true,
+            "target_id": "definition_target_01KWRWQCRYHLT5Dnfe9fKJYOOMo5wyuPr8q"
+          }
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01KWS1R2GBJQM4r5VEkLXFlazD3yMJPTiwH",
+        "name": "JSONPath Query",
+        "title": "Set SecureX Token",
+        "type": "corejava.jsonpathquery",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "continue_on_failure": false,
+          "display_name": "Set SecureX Token",
+          "input_json": "$activity.definition_activity_01KWRYH1P030M3cFT3F2nxRm6wXjEHTvd1V.output.response_body$",
+          "jsonpath_queries": [
+            {
+              "jsonpath_query": "$.access_token",
+              "jsonpath_query_name": "token",
+              "jsonpath_query_type": "string"
+            }
+          ],
+          "skip_execution": false
+        },
+        "object_type": "definition_activity"
+      },
+      {
+        "unique_name": "definition_activity_01KXDXU4XUG0L5ZkrY196GGhGa1rfdcsJh8",
+        "name": "HTTP Request",
+        "title": "SecureX Delete Incidents",
+        "type": "web-service.http_request",
+        "base_type": "activity",
+        "properties": {
+          "action_timeout": 180,
+          "allow_auto_redirect": true,
+          "content_type": "application/json",
+          "continue_on_error_status_code": false,
+          "continue_on_failure": false,
+          "custom_headers": [
+            {
+              "name": "Authorization",
+              "value": "Bearer $activity.definition_activity_01KWS1R2GBJQM4r5VEkLXFlazD3yMJPTiwH.output.jsonpath_queries.token$"
+            }
+          ],
+          "display_name": "SecureX Delete Incidents",
+          "method": "DELETE",
+          "relative_url": "/incident/search?$workflow.definition_workflow_01KWRY4A9RYYV23FSzpqEungNkawpkU34Or.input.variable_workflow_01KWS7VB26YHG1ccWhxlj4NKqKQ6Ql10kS3$=$workflow.definition_workflow_01KWRY4A9RYYV23FSzpqEungNkawpkU34Or.input.variable_workflow_01KWS84T537CD6d6Xgmylcb6dFDKzUIE9RK$&REALLY_DELETE_ALL_THESE_ENTITIES=true",
+          "runtime_user": {
+            "override_target_runtime_user": false,
+            "target_default": true
+          },
+          "skip_execution": false,
+          "target": {
+            "override_workflow_target": true,
+            "target_id": "definition_target_01KWS9XQ6WN4U4q4ZGDokD3wLMV9tZXBaa4"
+          }
+        },
+        "object_type": "definition_activity"
+      }
+    ],
+    "categories": [
+      "category_1BMfMXSnJMyt5Ihqi7rWJr5N8cf"
+    ]
+  },
+  "targets": {
+    "definition_target_01KWRWQCRYHLT5Dnfe9fKJYOOMo5wyuPr8q": {
+      "unique_name": "definition_target_01KWRWQCRYHLT5Dnfe9fKJYOOMo5wyuPr8q",
+      "name": "SecureX_Auth",
+      "title": "SecureX_Auth",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "default_runtime_user_id": "definition_runtime_user_01KWRVVU7G20B2uiohxCfFq6uRYBtaVPlzu",
+        "description": "Oath target to obtain bearer token",
+        "disable_certificate_validation": true,
+        "display_name": "SecureX_Auth",
+        "host": "visibility.amp.cisco.com",
+        "ignore_proxy": false,
+        "no_runtime_user": false,
+        "path": "/iroh/oauth2/token",
+        "protocol": "https"
+      }
+    },
+    "definition_target_01KWS9XQ6WN4U4q4ZGDokD3wLMV9tZXBaa4": {
+      "unique_name": "definition_target_01KWS9XQ6WN4U4q4ZGDokD3wLMV9tZXBaa4",
+      "name": "SecureX Private Intelligence",
+      "title": "SecureX Private Intelligence",
+      "type": "web-service.endpoint",
+      "base_type": "target",
+      "object_type": "definition_target",
+      "properties": {
+        "disable_certificate_validation": false,
+        "display_name": "SecureX Private Intelligence",
+        "host": "private.intel.amp.cisco.com",
+        "ignore_proxy": false,
+        "no_runtime_user": true,
+        "path": "/ctia",
+        "protocol": "https"
+      }
+    }
+  },
+  "runtime_users": {
+    "definition_runtime_user_01KWRVVU7G20B2uiohxCfFq6uRYBtaVPlzu": {
+      "unique_name": "definition_runtime_user_01KWRVVU7G20B2uiohxCfFq6uRYBtaVPlzu",
+      "name": "SecureX_API_Creds",
+      "title": "SecureX_API_Creds",
+      "type": "runtime_user.web-service_basic_credentials",
+      "base_type": "runtime_user",
+      "object_type": "definition_runtime_user",
+      "properties": {
+        "auth_option": "*****",
+        "basic_password": "*****",
+        "basic_username": "*****",
+        "display_name": "SecureX_API_Creds"
+      }
+    }
+  }
+}
